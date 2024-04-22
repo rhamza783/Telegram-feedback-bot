@@ -1,7 +1,7 @@
 {
   "name": "HY-TG-FeedBack",
   "version": "1.0.0",
-  "description": "Telegram feedback bot for XYZ purpose",
+  "description": "Telegram feedback bot for let's talk in englisg group",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/your-repo.git"
+    "url": "https://github.com/rhamza783/Telegram-feedback-bot"
   },
   "keywords": [
     "telegram",
@@ -18,15 +18,15 @@
     "feedback",
     "telegraf"
   ],
-  "author": "Your Name or GitHub Username",
+  "author": "rhamza783",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yourusername/your-repo/issues"
+    "url": "https://github.com/rhamza783/Telegram-feedback-bot/issues"
   },
   "contributors": [
     {
-      "name": "Contributor Name",
-      "email": "contributor@example.com"
+      "name": "not yer",
+      "email": "notyet@notyet.com"
     }
   ],
   "dependencies": {
