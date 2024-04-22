@@ -1,5 +1,5 @@
 #!/bin/bash
-# Coded by 7ife
+# Coded by rhamza783
 
 # Load environment variables from a .env file if present
 load_env() {
@@ -37,10 +37,16 @@ trap shutdown SIGINT SIGTERM
 
 # Display custom ASCII art and author information
 clear
-echo "Your ASCII art here"
+echo " __       _______ .___________.__     _______.   .___________.    ___       __       __  ___     __  .__   __.     _______ .__   __.   _______  __       __       _______. __    __     
+|  |     |   ____||           (_ )   /       |   |           |   /   \     |  |     |  |/  /    |  | |  \ |  |    |   ____||  \ |  |  /  _____||  |     |  |     /       ||  |  |  |    
+|  |     |  |__   `---|  |----`|/   |   (----`   `---|  |----`  /  ^  \    |  |     |  '  /     |  | |   \|  |    |  |__   |   \|  | |  |  __  |  |     |  |    |   (----`|  |__|  |    
+|  |     |   __|      |  |           \   \           |  |      /  /_\  \   |  |     |    <      |  | |  . `  |    |   __|  |  . `  | |  | |_ | |  |     |  |     \   \    |   __   |    
+|  `----.|  |____     |  |       .----)   |          |  |     /  _____  \  |  `----.|  .  \     |  | |  |\   |    |  |____ |  |\   | |  |__| | |  `----.|  | .----)   |   |  |  |  |    
+|_______||_______|    |__|       |_______/           |__|    /__/     \__\ |_______||__|\__\    |__| |__| \__|    |_______||__| \__|  \______| |_______||__| |_______/    |__|  |__|    
+                                                                                                                                                                                        "
 echo ""
-echo "Github: https://github.com/yourusername"
-echo "E-mail: youremail@example.com"
+echo "Github: https://github.com/rhamza783"
+echo "E-mail: rhamza783@example.com"
 echo ""
 
 # Install Node.js and Telegraf
@@ -77,4 +83,6 @@ start_bot
 while true; do
     sleep 5
 done
+
+
 
