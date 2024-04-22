@@ -1,38 +1,39 @@
-// Required modules
+// Connecting modules
 const Telegraf = require('telegraf');
-const fs = require('fs'); // For logging to a file
-const SocksAgent = require('socks5-https-client/lib/Agent'); // For SOCKS5 proxy support
+const fs = require('fs'); // File system module for logging
 
 // General settings
 let config = {
-    "token": "YOUR_TOKEN", // Replace with your actual bot token
-    "admin": 123456789 // Replace with the actual Telegram user ID of the bot owner
+    "token": "YOUR_TOKEN", // Bot token
+    "admin": 123456789 // bot owner id (replace with actual ID)
 };
+const CHAT_ID = 123456789; // bot owner id (replace with actual ID)
 
-// Proxy settings
-const proxyList = [
-    { host: 'proxy1.example.com', port: 1080 },
-    { host: 'proxy2.example.com', port: 1080 },
-    // Add more proxies as needed
-];
-let currentProxyIndex = 0;
+// Creating a bot object
+const bot = new Telegraf(config.token);
 
-// Function to get the current proxy configuration
-function getCurrentProxy() {
-    return proxyList[currentProxyIndex];
+// Function to create a hidden link
+function getHiddenLink(url, parse_mode = "markdown") {
+    const emptyChar = "‎";
+    switch (parse_mode) {
+        case "HTML":
+            return `<a href="${url}">${emptyChar}</a>`;
+        default:
+            throw new Error("invalid parse_mode");
+    }
 }
 
-// Function to switch to the next proxy in the list
-function switchToNextProxy() {
-    currentProxyIndex = (currentProxyIndex + 1) % proxyList.length;
-}
+// Message to confirm successful installation
+bot.telegram.sendMessage(
+    CHAT_ID,
+    `
+    <b>Great, you have successfully installed a feedback bot!</b>
+    ${getHiddenLink("https://your-link.com/image.png", "HTML")}
+    `,
+    { parse_mode: "HTML" }
+);
 
-// Creating a bot object with SOCKS5 proxy support
-const bot = new Telegraf(config.token, {
-    telegram: { agent: new SocksAgent(getCurrentProxy()) }
-});
-
-// Text settings for replies
+// Text Settings
 let replyText = {
     "helloAdmin": "Now share your bot and wait for messages.",
     "helloUser": "Greetings, send me a message. I will try to answer as soon as possible.",
@@ -42,18 +43,7 @@ let replyText = {
     "report": "Your report has been recorded. We will look into it shortly."
 };
 
-// Function to create a hidden link
-function getHiddenLink(url, parse_mode = "markdown") {
-    const emptyChar = "‎";
-    switch (parse_mode) {
-        case "HTML":
-            return `<a href="${url}">${emptyChar}</a>`;
-        default:
-            throw new Error("Invalid parse_mode");
-    }
-}
-
-// Function to check if a user is an admin
+// Checking the user's rights
 let isAdmin = (userId) => {
     return userId == config.admin;
 };
@@ -65,7 +55,7 @@ function logMessage(message) {
     });
 }
 
-// Function to forward messages to the admin
+// We redirect the admin from the user or notify the admin about the error
 let forwardToAdmin = (ctx) => {
     if (isAdmin(ctx.message.from.id)) {
         ctx.reply(replyText.replyWrong);
@@ -75,12 +65,13 @@ let forwardToAdmin = (ctx) => {
     }
 };
 
-// Bot command and message handlers
+// Bot Start
 bot.start((ctx) => {
     ctx.reply(isAdmin(ctx.message.from.id) ? replyText.helloAdmin : replyText.helloUser);
     logMessage(`Start command used by ${ctx.from.id}`);
 });
 
+// Command handlers
 bot.command('help', (ctx) => ctx.reply(replyText.help));
 bot.command('feedback', (ctx) => {
     ctx.reply(replyText.feedback);
@@ -91,20 +82,7 @@ bot.command('report', (ctx) => {
     logMessage(`Report from ${ctx.from.id}: ${ctx.message.text}`);
 });
 
-bot.command('ping', async (ctx) => {
-    const startTimestamp = Date.now();
-    try {
-        await bot.telegram.sendMessage(ctx.chat.id, 'Pong!');
-        const endTimestamp = Date.now();
-        const ping = endTimestamp - startTimestamp;
-        ctx.reply(`Bot response time: ${ping} ms`);
-    } catch (error) {
-        console.error('Error sending message:', error);
-        ctx.reply('An error occurred while checking ping. Please try again later.');
-        switchToNextProxy();
-    }
-});
-
+// Listening for the presence of the message object
 bot.on('message', (ctx) => {
     if (ctx.message.reply_to_message && ctx.message.reply_to_message.forward_from && isAdmin(ctx.message.from.id)) {
         ctx.telegram.sendCopy(ctx.message.reply_to_message.forward_from.id, ctx.message);
@@ -113,11 +91,11 @@ bot.on('message', (ctx) => {
     }
 });
 
-// Launching the bot
+// bot launch
 bot.launch()
     .then(() => console.log("Bot Launched"))
     .catch(console.error);
 
-// Graceful stop handling
+// Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
