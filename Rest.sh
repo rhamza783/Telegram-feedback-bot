@@ -1,5 +1,5 @@
 #!/bin/bash
-# Coded by Your Name
+# Coded by rhamza783
 
 # Load environment variables from a .env file if present
 if [ -f .env ]; then
@@ -21,8 +21,8 @@ echo "
                                                                                                                                        
 "
 echo ""
-echo "Github: https://github.com/yourusername"
-echo "E-mail: youremail@example.com"
+echo "Github: https://github.com/rhamza783"
+echo "E-mail: rhamza783@example.com"
 echo ""
 
 # Start the bot and redirect output to a log file
