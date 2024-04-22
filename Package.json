@@ -1,0 +1,43 @@
+{
+  "name": "HY-TG-FeedBack",
+  "version": "1.0.0",
+  "description": "Telegram feedback bot for XYZ purpose",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/your-repo.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "feedback",
+    "telegraf"
+  ],
+  "author": "Your Name or GitHub Username",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yourusername/your-repo/issues"
+  },
+  "contributors": [
+    {
+      "name": "Contributor Name",
+      "email": "contributor@example.com"
+    }
+  ],
+  "dependencies": {
+    "https-proxy-agent": "2.2.1",
+    "telegraf": "3.39.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "private": true,
+  "config": {
+    "port": 3000
+  }
+}
