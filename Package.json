@@ -1,43 +1,31 @@
 {
-  "name": "HY-TG-FeedBack",
-  "version": "1.0.0",
-  "description": "Telegram feedback bot for let's talk in englisg group",
+
+  "name": "TG-FeedBack",
+
+  "version": "1.0.1",
+
+  "description": "telegram feedback bot",
+
   "main": "index.js",
+
   "scripts": {
+
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint ."
+
+    "test": "echo \"Error: no test specified\" && exit 1"
+
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rhamza783/Telegram-feedback-bot"
-  },
-  "keywords": [
-    "telegram",
-    "bot",
-    "feedback",
-    "telegraf"
-  ],
-  "author": "rhamza783",
+
+  "author": "GitHub/7ife",
+
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/rhamza783/Telegram-feedback-bot/issues"
-  },
-  "contributors": [
-    {
-      "name": "not yer",
-      "email": "notyet@notyet.com"
-    }
-  ],
+
   "dependencies": {
-    "https-proxy-agent": "2.2.1",
-    "telegraf": "3.39.0"
-  },
-  "engines": {
-    "node": ">=10.0.0"
-  },
-  "private": true,
-  "config": {
-    "port": 3000
+
+    "https-proxy-agent": "^2.2.1",
+
+    "telegraf": "^3.39.0"
+
   }
+
 }
