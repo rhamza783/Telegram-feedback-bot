@@ -1,36 +1,13 @@
 // Required modules
 const Telegraf = require('telegraf');
 const fs = require('fs'); // For logging to a file
-const SocksAgent = require('socks5-https-client/lib/Agent'); // For SOCKS5 proxy support
+const punycode = require('punycode.js'); // For punycode support
 
 // General settings
 let config = {
     "token": "YOUR_TOKEN", // Replace with your actual bot token
     "admin": 123456789 // Replace with the actual Telegram user ID of the bot owner
 };
-
-// Proxy settings
-const proxyList = [
-    { host: 'proxy1.example.com', port: 1080 },
-    { host: 'proxy2.example.com', port: 1080 },
-    // Add more proxies as needed
-];
-let currentProxyIndex = 0;
-
-// Function to get the current proxy configuration
-function getCurrentProxy() {
-    return proxyList[currentProxyIndex];
-}
-
-// Function to switch to the next proxy in the list
-function switchToNextProxy() {
-    currentProxyIndex = (currentProxyIndex + 1) % proxyList.length;
-}
-
-// Creating a bot object with SOCKS5 proxy support
-const bot = new Telegraf(config.token, {
-    telegram: { agent: new SocksAgent(getCurrentProxy()) }
-});
 
 // Text settings for replies
 let replyText = {
@@ -41,17 +18,6 @@ let replyText = {
     "feedback": "Thank you for your feedback!",
     "report": "Your report has been recorded. We will look into it shortly."
 };
-
-// Function to create a hidden link
-function getHiddenLink(url, parse_mode = "markdown") {
-    const emptyChar = "‎";
-    switch (parse_mode) {
-        case "HTML":
-            return `<a href="${url}">${emptyChar}</a>`;
-        default:
-            throw new Error("Invalid parse_mode");
-    }
-}
 
 // Function to check if a user is an admin
 let isAdmin = (userId) => {
@@ -76,6 +42,8 @@ let forwardToAdmin = (ctx) => {
 };
 
 // Bot command and message handlers
+const bot = new Telegraf(config.token);
+
 bot.start((ctx) => {
     ctx.reply(isAdmin(ctx.message.from.id) ? replyText.helloAdmin : replyText.helloUser);
     logMessage(`Start command used by ${ctx.from.id}`);
@@ -101,7 +69,6 @@ bot.command('ping', async (ctx) => {
     } catch (error) {
         console.error('Error sending message:', error);
         ctx.reply('An error occurred while checking ping. Please try again later.');
-        switchToNextProxy();
     }
 });
 
