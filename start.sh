@@ -1,59 +1,109 @@
-#!bin/bash
-#Coded by 7ife
-clear
-echo ""
-echo -e "\033[1;94m ‎"
-echo "${k}████████╗ ██████╗ ██████╗  █████╗ ";
-echo "${k} ══██╔══╝██╔════╝ ██╔══██╗██╔══██╗";
-echo "${k}   ██║   ██║  ███╗██████╔╝███████║";
-echo "${k}   ██║   ██║   ██║██╔══██╗██╔══██║";
-echo "${k}   ██║   ╚██████╔╝██████╔╝██║  ██║";
-echo "${k}   ╚═╝    ╚═════╝ ╚═════╝ ╚═╝  ╚═╝";
-echo ""                                 
-echo -e "\033[1;90m  Github: github.com/7ife"
-echo -e "\033[1;90m  E-mail: 7ife@pm.me"
-echo ""
-echo -e "\033[1;94m::TGBA for Android::"
-sleep 2
-echo ""
-echo -e ""
-echo -e $'\e[1;34m::TGBA::\e[0m\e[1;32m #Installing NodeJS and Telegraf\e[0m'
-sleep 2
-apt install nodejs -y
-apt update -y
-npm install -g telegraf
-sleep 2
-echo -e ""
-echo -e " \033[1;93m successful\e[0m"
-echo -e "\033[1;96m ‎"
-sleep 2
-#Enter <bot_token>
-search="YOUR_TOKEN"
-read -p "#Enter <bot_token> which your received from @BotFather >>> " botToken
-if [[ $search != "" && $botToken != "" ]]; then
-sed -i "s/$search/$botToken/gi" index.js
-fi
-echo -e ""
-echo -e " \033[1;93m successful\e[0m"
-echo -e "\033[1;96m ‎"
-#Enter admin id
-search="034567888"
-read -p "#Enter telegram id - To get it, use @userinfobot >>> " adminId
-if [[ $search != "" && $adminId != "" ]]; then
-sed -i "s/$search/$adminId/gi" index.js
-fi
-echo -e ""
-echo -e " \033[1;93m successful"
-echo ""
-echo -e $'\e[1;34m::TGBA::\e[0m\e[1;32m #Installing dependencies\e[0m'
-sleep 2
-npm i
-sleep 1
-echo -e " \033[1;93m Start Bot"
-echo ""
-npm start
-echo ""
-while true
-do
-sleep 5
-done
+// index.js
+// Required modules
+const Telegraf = require('telegraf');
+const fs = require('fs'); // For logging to a file
+
+// General settings
+let config = {
+    "token": process.env.BOT_TOKEN, // Use environment variable for the bot token
+    "admin": process.env.OWNER_ID // Use environment variable for the admin ID
+};
+
+// Text settings for replies
+let replyText = {
+    "helloAdmin": "Now share your bot and wait for messages.",
+    "helloUser": "Greetings, send me a message. I will try to answer as soon as possible.",
+    "replyWrong": "Please use the Reply function to reply to the user's message directly.",
+    "help": "Here are the commands you can use: /feedback, /report, /help",
+    "feedback": "Thank you for your feedback!",
+    "report": "Your report has been recorded. We will look into it shortly."
+};
+
+// Function to check if a user is an admin
+let isAdmin = (userId) => {
+    return userId == config.admin;
+};
+
+// Function to log messages
+function logMessage(message) {
+    fs.appendFile('bot.log', message + '\n', (err) => {
+        if (err) throw err;
+    });
+}
+
+// Function to forward messages to the admin
+let forwardToAdmin = (ctx) => {
+    if (isAdmin(ctx.message.from.id)) {
+        ctx.reply(replyText.replyWrong);
+    } else {
+        ctx.forwardMessage(config.admin, ctx.from.id, ctx.message.id);
+        logMessage(`Message from ${ctx.from.id}: ${ctx.message.text}`);
+    }
+};
+
+// Function to add a user ID to the file
+function addUser(userId) {
+    fs.appendFileSync('user_ids.txt', userId + '\n');
+}
+
+// Function to get all user IDs
+function getAllUserIds() {
+    try {
+        return fs.readFileSync('user_ids.txt', 'utf8').split('\n').filter(Boolean);
+    } catch (error) {
+        console.error('Error reading user IDs:', error);
+        return [];
+    }
+}
+
+// Function to broadcast a message to all users
+function broadcastMessage(message) {
+    let allUserIds = getAllUserIds();
+    allUserIds.forEach(userId => {
+        bot.telegram.sendMessage(userId, message).catch(error => {
+            console.error(`Failed to send message to ${userId}:`, error);
+        });
+    });
+}
+
+// Bot command and message handlers
+const bot = new Telegraf(config.token);
+
+bot.start((ctx) => {
+    addUser(ctx.from.id.toString());
+    ctx.reply(isAdmin(ctx.message.from.id) ? replyText.helloAdmin : replyText.helloUser);
+    logMessage(`Start command used by ${ctx.from.id}`);
+});
+
+bot.command('help', (ctx) => ctx.reply(replyText.help));
+bot.command('feedback', (ctx) => {
+    ctx.reply(replyText.feedback);
+    logMessage(`Feedback from ${ctx.from.id}: ${ctx.message.text}`);
+});
+bot.command('report', (ctx) => {
+    ctx.reply(replyText.report);
+    logMessage(`Report from ${ctx.from.id}: ${ctx.message.text}`);
+});
+
+bot.command('broadcast', (ctx) => {
+    if (isAdmin(ctx.from.id)) {
+        let message = ctx.message.text.split(' ').slice(1).join(' ');
+        broadcastMessage(message);
+        ctx.reply('Broadcast sent.');
+    } else {
+        ctx.reply('You do not have permission to use this command.');
+    }
+});
+
+bot.on('message', (ctx) => {
+    forwardToAdmin(ctx);
+});
+
+// Launching the bot
+bot.launch()
+    .then(() => console.log("Bot Launched"))
+    .catch(console.error);
+
+// Graceful stop handling
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
