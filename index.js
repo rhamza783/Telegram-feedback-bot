@@ -1,11 +1,11 @@
-// Required modules
 const Telegraf = require('telegraf');
-const fs = require('fs'); // For logging to a file
-const punycode = require('punycode.js'); // For punycode support
+const fs = require('fs');
+const punycode = require('punycode.js');
+const moment = require('moment');
 
 // General settings
 let config = {
-    "token": "YOUR_TOKEN", // Replace with your actual bot token
+    "token": "YOUR_BOT_TOKEN", // Replace with your actual bot token
     "admin": 123456789 // Replace with the actual Telegram user ID of the bot owner
 };
 
@@ -29,6 +29,14 @@ function logMessage(message) {
     fs.appendFile('bot.log', message + '\n', (err) => {
         if (err) throw err;
     });
+}
+
+// Function to calculate uptime
+let startTime = moment();
+function getUptime() {
+    const now = moment();
+    const uptime = moment.duration(now.diff(startTime));
+    return uptime.format('d [days], h [hours], m [minutes], s [seconds]');
 }
 
 // Function to forward messages to the admin
@@ -63,6 +71,32 @@ bot.command('ping', async (ctx) => {
     const startTimestamp = Date.now();
     try {
         await bot.telegram.sendMessage(ctx.chat.id, 'Pong!');
+        const endTimestamp = Date.now();
+        const ping = endTimestamp - startTimestamp;
+        ctx.reply(`Bot response time: ${ping} ms`);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        ctx.reply('An error occurred while checking ping. Please try again later.');
+    }
+});
+
+bot.on('message', (ctx) => {
+    if (ctx.message.reply_to_message && ctx.message.reply_to_message.forward_from && isAdmin(ctx.message.from.id)) {
+        ctx.telegram.sendCopy(ctx.message.reply_to_message.forward_from.id, ctx.message);
+    } else {
+        forwardToAdmin(ctx);
+    }
+});
+
+// Launching the bot
+bot.launch()
+    .then(() => console.log("Bot Launched"))
+    .catch(console.error);
+
+// Graceful stop handling
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
+telegram.sendMessage(ctx.chat.id, 'Pong!');
         const endTimestamp = Date.now();
         const ping = endTimestamp - startTimestamp;
         ctx.reply(`Bot response time: ${ping} ms`);
